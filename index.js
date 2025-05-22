@@ -126,7 +126,7 @@ const changeHighlight = (language) => {
     navbar.classList.remove('error')
   }
 
-  generatedCodeEl.removeAttribute('data-highlighted');
+  generatedCodeEl.removeAttribute('data-highlighted')
   hljs.highlightElement(generatedCodeEl)
 }
 
@@ -192,9 +192,9 @@ const hideCopyToClipboard = () => {
 }
 
 const showExample = function (code) {
-  const inputBox = document.getElementById('curl-code');
-  inputBox.value = code.trim();
-  inputBox.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+  const inputBox = document.getElementById('curl-code')
+  inputBox.value = code.trim()
+  inputBox.dispatchEvent(new Event('input', { bubbles: true, composed: true }))
 }
 
 const convert = function () {
@@ -377,19 +377,19 @@ copyToClipboardEl.addEventListener('click', (e) => {
 
 const browsers = ['chrome', 'safari', 'firefox']
 const browserNames = {
-  'chrome': 'chrome',
+  chrome: 'chrome',
   'chromium-webview': 'chrome',
-  'edge': 'chrome',
+  edge: 'chrome',
   'edge-chromium': 'chrome',
-  'yandexbrowser': 'chrome',
-  'opera': 'chrome',
+  yandexbrowser: 'chrome',
+  opera: 'chrome',
   'opera-mini': 'chrome',
-  'android': 'chrome',
+  android: 'chrome',
 
-  'firefox': 'firefox',
+  firefox: 'firefox',
 
-  'safari': 'safari',
-  'ios': 'safari',
+  safari: 'safari',
+  ios: 'safari',
   'ios-webview': 'safari',
   'edge-ios': 'safari'
 }

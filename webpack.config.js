@@ -64,10 +64,10 @@ const copyIndexHtml = () => {
     return {
       from: 'index.html',
       to: language,
-      transform: toLanguage(language, title, converter, hljs),
-    };
-  });
-};
+      transform: toLanguage(language, title, converter, hljs)
+    }
+  })
+}
 
 export default {
   entry: './index.js',
@@ -90,13 +90,13 @@ export default {
             options: {
               filterSourceMappingUrl: (url, resourcePath) => {
                 if (/get-own-enumerable-property-symbols/i.test(resourcePath)) {
-                  return false;
+                  return false
                 }
 
-                return true;
-              },
-            },
-          },
+                return true
+              }
+            }
+          }
         ]
       },
       {
@@ -127,12 +127,12 @@ export default {
     fallback: {
       path: require.resolve('path-browserify'),
       fs: false,
-      stream: require.resolve("stream-browserify"),
-      util: require.resolve("util/"),
-      url: require.resolve("url/"),
-      querystring: require.resolve("querystring-es3"),
-      string_decoder: require.resolve("string_decoder/"),
-      buffer: require.resolve("buffer/")
+      stream: require.resolve('stream-browserify'),
+      util: require.resolve('util/'),
+      url: require.resolve('url/'),
+      querystring: require.resolve('querystring-es3'),
+      string_decoder: require.resolve('string_decoder/'),
+      buffer: require.resolve('buffer/')
     }
   },
   experiments: {
@@ -151,7 +151,7 @@ export default {
       ].concat(copyIndexHtml())
     }),
     new webpack.ProvidePlugin({
-      process: "process/browser"
+      process: 'process/browser'
     })
   ],
   // Don't warn that we have a big JS bundle.

@@ -1,6 +1,9 @@
 import * as curlconverter from 'curlconverter'
+import { toCustomDefaultsWarn, toCustomWarn } from './custom.js'
 
 export const languages = {
+  custom: { converter: toCustomWarn, hljs: 'rust', title: 'Custom' },
+  'custom-with-defaults': { converter: toCustomDefaultsWarn, hljs: 'rust', title: 'Custom with defaults' },
   ansible: { converter: curlconverter.toAnsibleWarn, hljs: 'yaml', title: 'Ansible' },
   c: { converter: curlconverter.toCWarn, hljs: 'c', title: 'C' },
   csharp: { converter: curlconverter.toCSharpWarn, hljs: 'csharp', title: 'C#' },
@@ -19,8 +22,8 @@ export const languages = {
   'java-jsoup': { converter: curlconverter.toJavaJsoupWarn, hljs: 'java', title: 'Java + jsoup', shortTitle: 'jsoup' },
   'java-okhttp': { converter: curlconverter.toJavaOkHttpWarn, hljs: 'java', title: 'Java + OkHttp', shortTitle: 'OkHttp' },
   javascript: { converter: curlconverter.toJavaScriptWarn, hljs: 'javascript', title: 'JavaScript + fetch', shortTitle: 'JavaScript' },
-  'javascript-jquery': {converter: curlconverter.toJavaScriptJqueryWarn, hljs: 'javascript', title: 'JavaScript + jQuery', shortTitle: 'jQuery'},
-  'javascript-xhr': {converter: curlconverter.toJavaScriptXHRWarn, hljs: 'javascript', title: 'JavaScript + XHR', shortTitle: 'XHR'},
+  'javascript-jquery': { converter: curlconverter.toJavaScriptJqueryWarn, hljs: 'javascript', title: 'JavaScript + jQuery', shortTitle: 'jQuery' },
+  'javascript-xhr': { converter: curlconverter.toJavaScriptXHRWarn, hljs: 'javascript', title: 'JavaScript + XHR', shortTitle: 'XHR' },
   // People googling for "curl json" are probably looking for something else
   json: { converter: curlconverter.toJsonStringWarn, hljs: 'json', title: 'a JSON object', shortTitle: 'JSON' },
   julia: { converter: curlconverter.toJuliaWarn, hljs: 'julia', title: 'Julia' },
@@ -49,5 +52,5 @@ export const languages = {
   'ruby-httparty': { converter: curlconverter.toRubyHttpartyWarn, hljs: 'ruby', title: 'Ruby + HTTParty' },
   rust: { converter: curlconverter.toRustWarn, hljs: 'rust', title: 'Rust' },
   swift: { converter: curlconverter.toSwiftWarn, hljs: 'swift', title: 'Swift' },
-  wget: { converter: curlconverter.toWgetWarn, hljs: 'bash', title: 'Wget' },
+  wget: { converter: curlconverter.toWgetWarn, hljs: 'bash', title: 'Wget' }
 }

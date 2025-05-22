@@ -109,7 +109,7 @@
           <option value="php-guzzle">PHP + Guzzle</option>
           <option value="powershell-restmethod">PowerShell + Invoke-RestMethod</option>
           <option value="powershell-webrequest">PowerShell + Invoke-WebRequest</option>
-          <option value="python" selected>Python + Requests</option>
+          <option value="python">Python + Requests</option>
           <option value="python-httpclient">Python + http.client</option>
           <option value="r">R + httr</option>
           <option value="r-httr2">R + httr2</option>
@@ -118,6 +118,8 @@
           <option value="rust">Rust</option>
           <option value="swift">Swift</option>
           <option value="wget">Wget</option>
+          <option value="custom" selected>Custom with required</option>
+          <option value="custom-with-defaults">Custom with defaults</option>
         </select>
       </div>
 
@@ -223,9 +225,9 @@
           </ul>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle active" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Python</a>
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Python</a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item active" href="/python/">Requests</a></li>
+            <li><a class="dropdown-item" href="/python/">Requests</a></li>
             <li><a class="dropdown-item" href="/python-httpclient/">http.client</a></li>
           </ul>
         </li>
@@ -251,6 +253,13 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/wget/">Wget</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle active" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false">Custom</a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item active" href="/custom/">Required</a></li>
+            <li><a class="dropdown-item" href="/custom-with-defaults/">Defaults</a></li>
+          </ul>
         </li>
       </ul>
     </div>
