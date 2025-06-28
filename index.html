@@ -264,6 +264,37 @@
       </ul>
     </div>
 
+    <!-- Custom Settings for declare_endpoint (only shown for custom languages) -->
+    <div class="row" id="custom-settings" style="display: none;">
+      <div class="col">
+        <div class="card border-secondary mb-3">
+          <div class="card-header">
+            <small class="text-muted">declare_endpoint! Settings</small>
+          </div>
+          <div class="card-body">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="setting-add-attach">
+              <label class="form-check-label" for="setting-add-attach">
+                Add #[attach(Client)]
+              </label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="setting-hide-cookies">
+              <label class="form-check-label" for="setting-hide-cookies">
+                Hide cookies
+              </label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="setting-hide-headers">
+              <label class="form-check-label" for="setting-hide-headers">
+                Hide headers
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="row">
       <div class="col">
         <pre><code id="generated-code">import requests

@@ -4,6 +4,7 @@ import { detect } from 'detect-browser'
 import './main.scss'
 
 import { languages } from './languages.js'
+import { getSettings, saveSettings } from './custom.js'
 
 import hljs from 'highlight.js/lib/core'
 import plaintext from 'highlight.js/lib/languages/plaintext'
@@ -152,6 +153,15 @@ const changeLanguage = function (language) {
 
   document.getElementById('language-select').value = language
 
+  // Show/hide custom settings based on language
+  const customSettings = document.getElementById('custom-settings')
+  if (language === 'custom' || language === 'custom-with-defaults') {
+    customSettings.style.display = 'block'
+    loadCustomSettings()
+  } else {
+    customSettings.style.display = 'none'
+  }
+
   changeHighlight(language)
 
   try {
@@ -277,7 +287,7 @@ const convert = function () {
   }
 }
 
-let startingLanguage = ''
+let startingLanguage
 const path = window.location.pathname.replace(/^\/+/, '').replace(/\/+$/, '')
 const hash = window.location.hash.replace('#', '')
 // Backwards compatibility. The language used to be in the hash, like
@@ -300,6 +310,9 @@ if (!path && hash) {
 }
 if (Object.prototype.hasOwnProperty.call(languages, startingLanguage)) {
   changeLanguage(startingLanguage)
+} else {
+  // Default to custom if no valid language found
+  changeLanguage('custom')
 }
 
 const curlCodeInput = document.getElementById('curl-code')
@@ -455,7 +468,40 @@ try {
     inputBox.value = prevCommand
   }
 } catch {}
+// Custom settings management
+function loadCustomSettings () {
+  const settings = getSettings()
+  document.getElementById('setting-add-attach').checked = settings.addAttach
+  document.getElementById('setting-hide-cookies').checked = settings.hideCookies
+  document.getElementById('setting-hide-headers').checked = settings.hideHeaders
+}
+
+function saveCustomSettings () {
+  const settings = {
+    addAttach: document.getElementById('setting-add-attach').checked,
+    hideCookies: document.getElementById('setting-hide-cookies').checked,
+    hideHeaders: document.getElementById('setting-hide-headers').checked
+  }
+  saveSettings(settings)
+  // Trigger conversion to update output with new settings
+  convert()
+}
+
+// Add event listeners for settings
+document.getElementById('setting-add-attach').addEventListener('change', saveCustomSettings)
+document.getElementById('setting-hide-cookies').addEventListener('change', saveCustomSettings)
+document.getElementById('setting-hide-headers').addEventListener('change', saveCustomSettings)
+
 inputBox.removeAttribute('disabled')
 inputBox.focus()
+
+// Show settings if we're on a custom language
+const currentLanguage = getLanguage()
+if (currentLanguage === 'custom' || currentLanguage === 'custom-with-defaults') {
+  const customSettings = document.getElementById('custom-settings')
+  customSettings.style.display = 'block'
+  loadCustomSettings()
+}
+
 convert()
 showInstructions()

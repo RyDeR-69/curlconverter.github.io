@@ -43,7 +43,9 @@ const IGNORED_HEADERS = new Set([
   'accept-language',
   'cache-control',
   'connection',
-  'host'
+  'host',
+  'priority',
+  'platform'
 ])
 
 function rustStr (str) {
@@ -204,8 +206,8 @@ function generateDefaultParamDef (paramName, paramValue = null, defaultValue = n
 }
 
 // HAR Request to declare_endpoint! Rust macro with defaults
-function harToRustEndpointMacroDefaults (harReq, endpointName = 'Root') {
-  const { url, method, headers = [], queryString = [], postData } = harReq
+function harToRustEndpointMacroDefaults (harReq, endpointName = 'Root', options = {}) {
+  const { url, method, headers = [], queryString = [], postData, cookies = [] } = harReq
 
   const rustMethod = methodMap[String(method).toUpperCase()] || 'GET'
 
@@ -220,6 +222,11 @@ function harToRustEndpointMacroDefaults (harReq, endpointName = 'Root') {
   const queryDefs = queryString
     .filter(q => q && q.name)
     .map(q => generateDefaultParamDef(q.name, q.value, rustStr(q.value || '')))
+
+  // Cookies: All with defaults
+  const cookieDefs = cookies
+    .filter(c => c && c.name)
+    .map(c => generateDefaultParamDef(c.name, c.value, rustStr(c.value || '')))
 
   // JSON body: All with defaults
   let jsonDefs = []
@@ -273,22 +280,36 @@ function harToRustEndpointMacroDefaults (harReq, endpointName = 'Root') {
     : ''
 
   // Build headers section only if there are headers
-  const headersSection = headerDefs.length > 0
+  const headersSection = headerDefs.length > 0 && !options.hideHeaders
     ? `headers {
             defaults {
                 ${headerDefs.join('\n                ')}
             }
-        }`
+        }
+        `
+    : ''
+
+  // Build cookies section only if there are cookies
+  const cookiesSection = cookieDefs.length > 0 && !options.hideCookies
+    ? `cookies {
+            url: ${rustStr(url)},
+            defaults {
+                ${cookieDefs.join('\n                ')}
+            }
+        }
+        `
     : ''
 
   // Clean up trailing whitespace and newlines
-  const sections = [pathSection, querySection, jsonSection, headersSection]
+  const sections = [pathSection, querySection, jsonSection, headersSection, cookiesSection]
     .filter(s => s.trim().length > 0)
     .join('')
     .replace(/\n\s*$/, '')
 
+  const attachAttribute = options.addAttach ? '#[attach(Client)]\n    ' : ''
+
   return `declare_endpoint! {
-    pub ${endpointName} => serde_json::Value {
+    ${attachAttribute}pub ${endpointName} => serde_json::Value {
         url: ${rustStr(url)},
         method: reqwest::Method::${rustMethod},
 
@@ -298,8 +319,8 @@ function harToRustEndpointMacroDefaults (harReq, endpointName = 'Root') {
 }
 
 // Original version with required fields (your existing code)
-function harToRustEndpointMacro (harReq, endpointName = 'Root') {
-  const { url, method, headers = [], queryString = [], postData } = harReq
+function harToRustEndpointMacro (harReq, endpointName = 'Root', options = {}) {
+  const { url, method, headers = [], queryString = [], postData, cookies = [] } = harReq
 
   const rustMethod = methodMap[String(method).toUpperCase()] || 'GET'
 
@@ -321,6 +342,17 @@ function harToRustEndpointMacro (harReq, endpointName = 'Root') {
     .filter(q => q && q.name)
     .map(q => {
       const converted = convertParamName(q.name)
+      const serdeRename = converted.needsRename
+        ? `#[serde(rename = "${converted.original}")]\n                `
+        : ''
+      return `${serdeRename}${converted.rust}: String [into],`
+    })
+
+  // Cookies: All required, with serde renames if needed
+  const cookieDefs = cookies
+    .filter(c => c && c.name)
+    .map(c => {
+      const converted = convertParamName(c.name)
       const serdeRename = converted.needsRename
         ? `#[serde(rename = "${converted.original}")]\n                `
         : ''
@@ -383,22 +415,36 @@ function harToRustEndpointMacro (harReq, endpointName = 'Root') {
     : ''
 
   // Build headers section only if there are headers
-  const headersSection = headerDefs.length > 0
+  const headersSection = headerDefs.length > 0 && !options.hideHeaders
     ? `headers {
             required {
                 ${headerDefs.join('\n                ')}
             }
-        }`
+        }
+        `
+    : ''
+
+  // Build cookies section only if there are cookies
+  const cookiesSection = cookieDefs.length > 0 && !options.hideCookies
+    ? `cookies {
+            url: ${rustStr(url)},
+            required {
+                ${cookieDefs.join('\n                ')}
+            }
+        }
+        `
     : ''
 
   // Clean up trailing whitespace and newlines
-  const sections = [pathSection, querySection, jsonSection, headersSection]
+  const sections = [pathSection, querySection, jsonSection, headersSection, cookiesSection]
     .filter(s => s.trim().length > 0)
     .join('')
     .replace(/\n\s*$/, '')
 
+  const attachAttribute = options.addAttach ? '#[attach(Client)]\n    ' : ''
+
   return `declare_endpoint! {
-    pub ${endpointName} => serde_json::Value {
+    ${attachAttribute}pub ${endpointName} => serde_json::Value {
         url: ${rustStr(url)},
         method: reqwest::Method::${rustMethod},
 
@@ -407,16 +453,50 @@ function harToRustEndpointMacro (harReq, endpointName = 'Root') {
 }`
 }
 
+// Settings management with cookie persistence
+function getSettings () {
+  const defaultSettings = {
+    addAttach: false,
+    hideCookies: false,
+    hideHeaders: false
+  }
+
+  try {
+    const saved = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('curlconverter_settings='))
+
+    if (saved) {
+      const decoded = decodeURIComponent(saved.split('=')[1])
+      return { ...defaultSettings, ...JSON.parse(decoded) }
+    }
+  } catch (e) {
+    console.warn('Failed to load settings:', e)
+  }
+
+  return defaultSettings
+}
+
+function saveSettings (settings) {
+  try {
+    const encoded = encodeURIComponent(JSON.stringify(settings))
+    document.cookie = `curlconverter_settings=${encoded}; max-age=${365 * 24 * 60 * 60}; path=/`
+  } catch (e) {
+    console.warn('Failed to save settings:', e)
+  }
+}
+
 // The custom converter for your Rust macro endpoint (required version)
 const toCustomWarn = (curlCommand, warnings = []) => {
   const [harJSONString] = curlconverter.toHarStringWarn(curlCommand, warnings)
   try {
     const har = JSON.parse(harJSONString)
     const entry = har.log.entries[0]
+    const settings = getSettings()
 
     const endpointName = 'Root'
 
-    const macro = harToRustEndpointMacro(entry.request, endpointName)
+    const macro = harToRustEndpointMacro(entry.request, endpointName, settings)
     return [macro, []]
   } catch (e) {
     return [`// Failed to generate endpoint: ${e.message}`, warnings]
@@ -429,14 +509,15 @@ const toCustomDefaultsWarn = (curlCommand, warnings = []) => {
   try {
     const har = JSON.parse(harJSONString)
     const entry = har.log.entries[0]
+    const settings = getSettings()
 
     const endpointName = 'Root'
 
-    const macro = harToRustEndpointMacroDefaults(entry.request, endpointName)
+    const macro = harToRustEndpointMacroDefaults(entry.request, endpointName, settings)
     return [macro, []]
   } catch (e) {
     return [`// Failed to generate endpoint: ${e.message}`, warnings]
   }
 }
 
-export { toCustomWarn, toCustomDefaultsWarn }
+export { toCustomWarn, toCustomDefaultsWarn, getSettings, saveSettings }
