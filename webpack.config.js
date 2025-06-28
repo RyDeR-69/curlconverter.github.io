@@ -144,7 +144,7 @@ export default {
       patterns: [
         'node_modules/web-tree-sitter/tree-sitter.wasm',
         'node_modules/curlconverter/dist/tree-sitter-bash.wasm',
-        { from: 'index.html', transform: (c) => c.toString().replace(STARTING_CODE, hljs.highlight(STARTING_CODE, { language: 'python' }).value) },
+        { from: 'index.html', transform: (c) => c.toString().replace(STARTING_CODE, hljs.highlight(languages.custom.converter(['curl', 'example.com'])[0], { language: languages.custom.hljs }).value) },
         { from: 'images', to: 'images' },
         'meta',
         'CNAME'
