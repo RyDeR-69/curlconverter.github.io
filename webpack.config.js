@@ -15,9 +15,13 @@ const require = createRequire(import.meta.url)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const STARTING_CODE = `import requests
+const STARTING_CODE = `declare_endpoint! {
+    pub Root => serde_json::Value {
+        url: "http://example.com",
+        method: reqwest::Method::GET,
 
-response = requests.get('http://example.com')`
+    }
+}`
 
 const toLanguage = (language, title, converter, hljsLang) => {
   return (content) => {

@@ -461,6 +461,11 @@ function getSettings () {
     hideHeaders: false
   }
 
+  // If running in Node.js (during webpack build), return defaults
+  if (typeof document === 'undefined') {
+    return defaultSettings
+  }
+
   try {
     const saved = document.cookie
       .split('; ')
@@ -478,6 +483,11 @@ function getSettings () {
 }
 
 function saveSettings (settings) {
+  // If running in Node.js (during webpack build), do nothing
+  if (typeof document === 'undefined') {
+    return
+  }
+
   try {
     const encoded = encodeURIComponent(JSON.stringify(settings))
     document.cookie = `curlconverter_settings=${encoded}; max-age=${365 * 24 * 60 * 60}; path=/`

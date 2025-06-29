@@ -297,9 +297,13 @@
 
     <div class="row">
       <div class="col">
-        <pre><code id="generated-code">import requests
+        <pre><code id="generated-code">declare_endpoint! {
+    pub Root => serde_json::Value {
+        url: "http://example.com",
+        method: reqwest::Method::GET,
 
-response = requests.get('http://example.com')</code></pre>
+    }
+}</code></pre>
       </div>
     </div>
     <div class="row">
